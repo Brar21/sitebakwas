@@ -13,5 +13,5 @@ const productSchema = mongoose.Schema({
   shipfrom: String,
   seller: String,
 },{ timestamps: true });
-const productModel = mongoose.model("product", productSchema);
-module.exports = { productModel };
+const ProductModel = mongoose.model("product", productSchema);
+module.exports = { ProductModel };

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const carttSchema = mongoose.Schema(
   {
     productID: Number,
-    productImage: URL,
+    productImage: String,
     productName: String,
     color: String,
     packagingof: Number,
