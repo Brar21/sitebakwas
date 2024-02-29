@@ -25,7 +25,7 @@ const sendMail = async (transporter, mailOptions) => {
 };
 
 userroute.post("/", async (req, res) => {
-  const otp = Math.floor(1000 + Math.random() * 900000);
+  const otp = Math.floor(100 + Math.random() * 900000);
   try {
     const { name, email, phone, image } = req.body;
 
@@ -36,24 +36,26 @@ userroute.post("/", async (req, res) => {
       phone,
       image,
     });
+
     const mailOptions = {
       from: { name: "Akash Medicare", address: "nihangsinghakali@gmail.com" },
       to: email,
-      subject: "Hello ✔", // Subject line
+      subject: "Welcome to AkashMedicare 😊", // Subject line
       text: "Hello world?", // plain text body
-      html: `Email Verification code
-
-      Please use the verification code below to Reset or Forget password of ${email}.
-                      
-      ${otp}
-                      
-      If you didn’t request this, you can ignore this email.
-                      
+        html: `<p>Email Verification code 
+      <br>Please use the verification code below to verification of&nbsp; &nbsp;<b>${email}</b> email address.
+<br>               
+     <b> ${otp} </b>
+<br>          
+      If you didn’t request this, you can ignore this email</p>.
+      <br>  
       Thanks,
-      The AkashMedicare team` // html body
+      <br>
+      <strong>The AkashMedicare team</strong>`, // html body
     };
-    await u.save();
-    let otpgen = new Otpmodel({ email, otp: otp });
+      await u.save();
+      const expiretime=new Date().getTime()+5*60*1000
+    let otpgen = new Otpmodel({ email, otp: otp, expiretime });
     await otpgen.save();
     sendMail(transporter, mailOptions);
     res.status(200).json({ success: "signup done" });
@@ -112,17 +114,43 @@ The JavascriptFolks team`,
   }
 });
 userroute.post("/verify", async (req, res) => {
-  const { email, otp } = req.body;
-  try {
+    const {email,otp}=req.body;
+    const currentTime=new Date().getTime()
+    try
+    {
+        let userdetails=await userModel.findOne({email: email});
     let user = await Otpmodel.findOne({ email: email });
-    if (!user) {
+    if (!userdetails) {
       res.send("account is not exits");
+      } if(currentTime>user?.expiretime)
+      {
+          await Otpmodel.findByIdAndDelete({_id: user._id})
+          const mailOptions = {
+            from: { name: "Akash Medicare", address: "nihangsinghakali@gmail.com" },
+            to: email,
+            subject: "Welcome to AkashMedicare 😊", // Subject line
+            text: "Hello world?", // plain text body
+              html: `<p>Email Verification code 
+            <br>Please use the verification code below to verification of&nbsp; &nbsp;<b>${email}</b> email address.
+      <br>               
+           <b> ${otp} </b>
+      <br>          
+            If you didn’t request this, you can ignore this email</p>.
+            <br>  
+            Thanks,
+            <br>
+            <strong>The AkashMedicare team</strong>`, // html body
+          };
+          sendMail(transporter,mailOptions);
+          res.send("resend code again after 5 mints")
     } else {
       if (user.otp === otp) {
-        res.status(200).send("user verified");
-      } else {
+          res.status(200).send("user verified");
+          await Otpmodel.findByIdAndDelete({_id:user._id})
+      } else if(user.otp !== otp){
         res.status(400).send("wrong otp");
-      }
+          }
+          res.send("already verified")
     }
   } catch (err) {
     res.status(400).send(err);
