@@ -3,7 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const {productRoute}=require("./Routes/ProdcutsRoute");
 const {cartRoute}=require("./Routes/cartRoute")
-const { connection } = require("./configtration/db");
+const {connection}=require("./configtration/db");
+const {userroute}=require("./Routes/userRegistration")
 const app = express();
 const cors = require("cors");
 
@@ -14,6 +15,8 @@ app.get("/", (req, res) => {
 });
 app.use("/product", productRoute);
 app.use("/cart",cartRoute)
+app.use("/register",userroute)
+
 app.listen(process.env.Port, async () => {
   console.log(process.env.Port);
   try {

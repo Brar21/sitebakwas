@@ -1,85 +1,76 @@
-const { User } = require("../models/User");
+const { userModel } = require("../Model/userModel");
 var CyrptoJS = require("crypto-js");
 const express = require("express");
-const { Otpmodel } = require("../models/otp");
+const { Otpmodel } = require("../Model/otp");
 const nodemailer = require("nodemailer");
-const userroute=express.Router();
+const userroute = express.Router();
+const path = require("path");
 
-userroute.post("/register", async (req, res) => {
+const transporter = nodemailer.createTransport({
+  service: "gmail.com",
+  host: "smtp.gmail.net",
+  auth: {
+    user: "vs21418@gmail.com",
+    pass: "zhao rnyi fqum dfkg",
+  },
+});
+
+const sendMail = async (transporter, mailOptions) => {
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("email sent");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+userroute.post("/", async (req, res) => {
+  const otp = Math.floor(1000 + Math.random() * 900000);
   try {
     const { name, email, phone, image } = req.body;
-    let u = new User(
-      {
-        name,
-        email,
-        password: CyrptoJS.AES.encrypt(req.body.password, "brar123").toString(),
-      },
+
+    let u = new userModel({
+      name,
+      email,
+      password: CyrptoJS.AES.encrypt(req.body.password, "brar123").toString(),
       phone,
-      image
-    );
+      image,
+    });
+    const mailOptions = {
+      from: { name: "Akash Medicare", address: "nihangsinghakali@gmail.com" },
+      to: email,
+      subject: "Hello ✔", // Subject line
+      text: "Hello world?", // plain text body
+      html: `Email Verification code
+
+      Please use the verification code below to Reset or Forget password of ${email}.
+                      
+      ${otp}
+                      
+      If you didn’t request this, you can ignore this email.
+                      
+      Thanks,
+      The AkashMedicare team` // html body
+    };
     await u.save();
+    let otpgen = new Otpmodel({ email, otp: otp });
+    await otpgen.save();
+    sendMail(transporter, mailOptions);
     res.status(200).json({ success: "signup done" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err });
   }
 });
-userroute.post("/otp", async (req, res) => {
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  const { email } = req.body;
-  let user = await Otpmodel.findOne({ email: email });
 
-  try {
-    if (user) {
-      res.send("already there");
-    } else {
-      const config = {
-        service: "gmail",
-        auth: {
-          user: "sssaini67730@gmail.com",
-          pass: "mpldhbnmuqposgkd",
-        },
-      };
-      let transporter = nodemailer.createTransport(config);
-      var mailOptions = {
-        from: "sssaini67730@gmail.com",
-        to: email,
-        subject: "Your OTP for Register or Email Verfication",
-          text: `Email Verification code
-        
-Please use the verification code below to Register ${email} with us.
-
-${otp}
-
-If you didn’t request this, you can ignore this email.
-
-Thanks,
-The AkashMedicare team `,
-      };
-      let otpgen = new Otpmodel({ email, otp: otp });
-      await otpgen.save();
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          res.send(error);
-        } else {
-          res.send({ Email: info.response });
-        }
-      });
-    }
-  } catch (err) {
-    res.send(err);
-  }
-});
 userroute.patch("/otp", async (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000);
   const { email } = req.body;
 
-    try
-    {
-        let user = await Otpmodel.findOne({ email: email });
-        if(!user)
-        {
-            res.send({success:false})
-        }
+  try {
+    let user = await Otpmodel.findOne({ email: email });
+    if (!user) {
+      res.send({ success: false });
+    }
 
     const config = {
       service: "gmail",
@@ -113,7 +104,7 @@ The JavascriptFolks team`,
       if (error) {
         res.send(error);
       } else {
-        res.send({ Email: info.response ,success:true});
+        res.send({ Email: info.response, success: true });
       }
     });
   } catch (err) {
