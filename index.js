@@ -21,7 +21,7 @@ app.listen(process.env.Port, async () => {
   console.log(process.env.Port);
   try {
     await connection;
-    console.log("MongoDB is rady to use");
+    console.log("MongoDB is ready to use");
   } catch (err) {
     console.log("not connected");
   }
