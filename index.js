@@ -5,6 +5,7 @@ const {productRoute}=require("./Routes/ProdcutsRoute");
 const {cartRoute}=require("./Routes/cartRoute")
 const {connection}=require("./configtration/db");
 const {userroute}=require("./Routes/userRegistration")
+const {getUser}=require("./Routes/userlogin")
 const app = express();
 const cors = require("cors");
 
@@ -16,7 +17,7 @@ app.get("/", (req, res) => {
 app.use("/product", productRoute);
 app.use("/cart",cartRoute)
 app.use("/register",userroute)
-
+app.use("/login",getUser)
 app.listen(process.env.Port, async () => {
   console.log(process.env.Port);
   try {

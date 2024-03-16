@@ -15,6 +15,7 @@ const productSchema = mongoose.Schema(
     rating: Number,
     shipfrom: String,
     seller: String,
+    size: String,
   },
   { timestamps: true }
 );
