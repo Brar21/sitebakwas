@@ -2,13 +2,9 @@ const express = require("express");
 const productRoute = express.Router();
 const { ProductModel } = require("../Model/productModel");
 productRoute.post("/product", async (req, res) => {
-  console.log(req);
-
   try {
-    console.log(req);
     const product = new ProductModel({ ...req.body });
     await product.save();
-    console.log(product);
     res.status(200).json({ msg: "product Posted Successfully", success: true });
   } catch (err) {
     res.status(400).send({ msg: err, success: false });

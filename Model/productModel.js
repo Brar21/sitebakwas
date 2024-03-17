@@ -3,6 +3,10 @@ const productSchema = mongoose.Schema(
   {
     productID: Number,
     productImage: String,
+    productImage2: String,
+    productImage3: String,
+    productImage4: String,
+    productImage5: String,
     productName: String,
     color: String,
     category: String,
