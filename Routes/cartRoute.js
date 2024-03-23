@@ -1,7 +1,7 @@
 const express = require("express");
 const cartRoute = express.Router();
 const { cartModel } = require("../Model/cartModel");
-cartRoute.post("/cart", async (req, res) => {
+cartRoute.post("/", async (req, res) => {
   console.log(req);
 
   try {
@@ -15,8 +15,9 @@ cartRoute.post("/cart", async (req, res) => {
   }
 });
 cartRoute.get("/", async (req, res) => {
+  const { userId } = req.body;
   try {
-    let cart = await cartModel.find();
+    let cart = await cartModel.find(userId);
     res.status(200).send(cart);
   } catch (err) {
     res.status(404).send({ err: err.message });
@@ -24,25 +25,44 @@ cartRoute.get("/", async (req, res) => {
 });
 
 cartRoute.patch("/cart/:id", async (req, res) => {
+  const { userId } = req.headers;
   console.log(req.body);
   try {
-    const cart = await cartModel.findByIdAndUpdate(
-      { _id:req.params.id },
-      req.body
-    );
-    res.status(200).json({ msg: "Blog is updated by authorized user", cart });
+    let findproduct = await cartModel.findOne({
+      _id: req.params.id,
+      userId: userId,
+    });
+    if (findproduct) {
+      const cartUpdate = await cartModel.findByIdAndUpdate(
+        { _id: req.params.id, userId },
+        req.body
+      );
+      res
+        .status(200)
+        .json({ msg: "Product is updated by authorized user", cart });
+    } else {
+      res.status(401).json({ msg: "You are Unauthorize User" });
+    }
+  } catch (err) {
+    res.status(400).send("cart updation have some error");
+  }
+});
+cartRoute.delete("/cart/:id", async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.headers;
+  try {
+    let match = await cartModel.findOne({ _id: id, userId: userId });
+    if (match) {
+      let cartdelete = await cartModel.findByIdAndDelete(
+        { _id: id, userId: userId },
+        req.body
+      );
+      res.status(200).json({ msg: "cart product is deleted" });
+    } else {
+      res.status(401).json({ msg: "You are Unauthorize User" });
+    }
   } catch (err) {
     res.status(400).send("not update");
   }
-});
-cartRoute.delete("/cart/:id", async(req, res) => {
-    try {
-        const cart = await cartModel.findByIdAndDelete(
-          { _id:req.params.id }
-        );
-        res.status(200).json({ msg: "Blog is deleted by authorized user", cart });
-      } catch (err) {
-        res.status(400).send("not update");
-      }
 });
 module.exports = { cartRoute };

@@ -8,6 +8,7 @@ const carttSchema = mongoose.Schema(
     packagingof: Number,
     description: String,
     price: Number,
+    userId: { type: Number, require: true },
     reviews: String,
     stockquantity: Number,
     rating: Number,
