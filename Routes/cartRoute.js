@@ -2,13 +2,9 @@ const express = require("express");
 const cartRoute = express.Router();
 const { cartModel } = require("../Model/cartModel");
 cartRoute.post("/", async (req, res) => {
-  console.log(req);
-
   try {
-    console.log(req);
     const cart = new cartModel({ ...req.body });
     await cart.save();
-    console.log(cart);
     res.status(200).json({ msg: "cart Posted Successfully", success: true });
   } catch (err) {
     res.status(400).send({ msg: err, success: false });
@@ -26,7 +22,7 @@ cartRoute.get("/", async (req, res) => {
 
 cartRoute.patch("/cart/:id", async (req, res) => {
   const { userId } = req.headers;
-  console.log(req.body);
+
   try {
     let findproduct = await cartModel.findOne({
       _id: req.params.id,
