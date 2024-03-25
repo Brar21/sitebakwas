@@ -14,7 +14,7 @@ const productSchema = mongoose.Schema(
     stylename: String,
     pattrenname: String,
     Brand: String,
-    packagingof: Number,
+    packagingof: {type:Number,default:1},
     description: String,
     offerprice: Number,
     reviews: String,
