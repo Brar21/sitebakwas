@@ -13,7 +13,7 @@ cartRoute.post("/", async (req, res) => {
 cartRoute.get("/", async (req, res) => {
   const { userId } = req.headers;
   try {
-    let cart = await cartModel.find(userId);
+    let cart = await cartModel.find({userId});
     res.status(200).send({ success: true, msg: res.message,cart });
   } catch (err) {
     res.status(404).send({ err: err.message });
